@@ -1,15 +1,44 @@
 "use client"
 
 import { User, Bell, Shield, Info, ChevronRight } from "lucide-react"
+import { useEffect, useState } from "react"
+
+interface UserData {
+  id: number
+  name: string | null
+  email: string
+  createdAt: string
+}
 
 export default function SettingsPage() {
+  const [user, setUser] = useState<UserData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch('/api/user')
+        if (response.ok) {
+          const userData = await response.json()
+          setUser(userData)
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUser()
+  }, [])
+
   const settingsSections = [
     {
       title: "Tài khoản",
       icon: User,
       items: [
-        { label: "Thông tin cá nhân", value: "Nguyễn Văn A" },
-        { label: "Email", value: "user@example.com" },
+        { label: "Thông tin cá nhân", value: user?.name || "Nguyễn Văn A" },
+        { label: "Email", value: user?.email || "user@example.com" },
       ],
     },
     {
@@ -31,6 +60,17 @@ export default function SettingsPage() {
     },
   ]
 
+  if (loading) {
+    return (
+      <div className="h-full overflow-y-auto bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#FFB3D9] mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="h-full overflow-y-auto bg-gray-50">
       {/* Header */}
@@ -50,8 +90,8 @@ export default function SettingsPage() {
               NA
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-lg">Nguyễn Văn A</p>
-              <p className="text-sm text-gray-600">user@example.com</p>
+              <p className="font-semibold text-lg">{user?.name || "Nguyễn Văn A"}</p>
+              <p className="text-sm text-gray-600">{user?.email || "user@example.com"}</p>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-600" />
           </div>
