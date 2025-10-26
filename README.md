@@ -65,9 +65,12 @@ npm install
 
 ### 3. Cấu hình Database
 
+> 📖 **Hướng dẫn chi tiết**: Xem [PRISMA_SETUP.md](./PRISMA_SETUP.md) để có hướng dẫn đầy đủ về thiết lập Prisma.
+
 #### Tạo file `.env`:
 ```bash
-cp .env.example .env
+# Tạo file .env với cấu hình database
+echo 'DATABASE_URL="mysql://username:password@localhost:3306/neocradle"' > .env
 ```
 
 #### Cấu hình DATABASE_URL trong `.env`:
