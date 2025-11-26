@@ -1,0 +1,3 @@
+MINI_RGBD infant bbox model
+
+Adam lr=1e-4

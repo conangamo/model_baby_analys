@@ -1,0 +1,182 @@
+{
+  "keypoints_2d": {
+    "format": "pixel_coordinates",
+    "description": "2D keypoints in image pixel coordinates (x, y)",
+    "joints": {
+      "r ankle": {
+        "x": 54.09375,
+        "y": 310.78125
+      },
+      "r knee": {
+        "x": 85.171875,
+        "y": 341.859375
+      },
+      "r hip": {
+        "x": 64.453125,
+        "y": 341.859375
+      },
+      "l hip": {
+        "x": 64.453125,
+        "y": 435.09375
+      },
+      "l knee": {
+        "x": 209.484375,
+        "y": 538.6875
+      },
+      "l ankle": {
+        "x": 157.6875,
+        "y": 549.046875
+      },
+      "pelvis": {
+        "x": 74.8125,
+        "y": 393.65625
+      },
+      "thorax": {
+        "x": 271.640625,
+        "y": 372.9375
+      },
+      "upper neck": {
+        "x": 354.515625,
+        "y": 393.65625
+      },
+      "head top": {
+        "x": 406.3125,
+        "y": 445.453125
+      },
+      "r wrist": {
+        "x": 240.5625,
+        "y": 372.9375
+      },
+      "r elbow": {
+        "x": 209.484375,
+        "y": 476.53125
+      },
+      "r shoulder": {
+        "x": 323.4375,
+        "y": 321.140625
+      },
+      "l shoulder": {
+        "x": 302.71875,
+        "y": 445.453125
+      },
+      "l elbow": {
+        "x": 230.203125,
+        "y": 507.609375
+      },
+      "l wrist": {
+        "x": 188.765625,
+        "y": 549.046875
+      }
+    }
+  },
+  "keypoints_3d": {
+    "format": "millimeters",
+    "description": "3D keypoints in millimeters (x, y, z)",
+    "joints": {
+      "r ankle": {
+        "x": -112.4288330078125,
+        "y": -124.09359741210938,
+        "z": 71.88599395751953
+      },
+      "r knee": {
+        "x": -63.744476318359375,
+        "y": -119.11162567138672,
+        "z": -172.4328155517578
+      },
+      "r hip": {
+        "x": -61.16131591796875,
+        "y": -12.338257789611816,
+        "z": -31.7343807220459
+      },
+      "l hip": {
+        "x": 9.721097946166992,
+        "y": 55.23163604736328,
+        "z": -15.538310050964355
+      },
+      "l knee": {
+        "x": 198.9769287109375,
+        "y": 183.3695068359375,
+        "z": -33.083316802978516
+      },
+      "l ankle": {
+        "x": 105.47692108154297,
+        "y": 181.66238403320312,
+        "z": 5.14138126373291
+      },
+      "pelvis": {
+        "x": 0.13991494476795197,
+        "y": -0.10173948109149933,
+        "z": 0.06523744761943817
+      },
+      "thorax": {
+        "x": 150.76702880859375,
+        "y": -99.4864501953125,
+        "z": 70.55396270751953
+      },
+      "upper neck": {
+        "x": 215.41983032226562,
+        "y": -161.39187622070312,
+        "z": 120.08099365234375
+      },
+      "head top": {
+        "x": 321.2752990722656,
+        "y": -96.49388885498047,
+        "z": 21.43389320373535
+      },
+      "r wrist": {
+        "x": -47.43327331542969,
+        "y": -90.9062728881836,
+        "z": 162.55580139160156
+      },
+      "r elbow": {
+        "x": -14.43447208404541,
+        "y": -35.60158920288086,
+        "z": 178.64306640625
+      },
+      "r shoulder": {
+        "x": 89.53845977783203,
+        "y": -164.18698120117188,
+        "z": 142.8722381591797
+      },
+      "l shoulder": {
+        "x": 277.8935241699219,
+        "y": -33.446346282958984,
+        "z": 130.54530334472656
+      },
+      "l elbow": {
+        "x": 255.07740783691406,
+        "y": 105.18834686279297,
+        "z": 124.90511322021484
+      },
+      "l wrist": {
+        "x": 249.2310333251953,
+        "y": 148.0787811279297,
+        "z": 104.11298370361328
+      }
+    }
+  },
+  "pose_analysis": {
+    "posture": "lying_on_stomach",
+    "confidence": 0.85,
+    "danger_level": "HIGH",
+    "danger_message": "🚨 DANGER: Prone indicators detected – classifier detected lying_on_stomach | head slightly lower than torso (-3.0 mm) | neck bent 82.7° | knees tucked (avg 38.3°) | one knee very bent (36.6°) | spine angle 30.9° indicates lying posture",
+    "recommendation": "Roll infant onto back immediately and monitor breathing",
+    "reasoning": "Spine angle 30.9° (lying), head offset -3.0 mm, bent neck 82.7° → likely stomach ⚠️ | Head lower than torso by 3.0 mm | Knee angles: left 36.6°, right 40.0° | Neck angle: 82.7°",
+    "angles": {
+      "spine_angle": 30.862831115722656,
+      "knee_right": 39.999515533447266,
+      "knee_left": 36.62800979614258,
+      "neck_angle": 82.70702362060547,
+      "shoulder_right": 67.73136138916016,
+      "shoulder_left": 156.5927276611328
+    },
+    "warnings": [
+      {
+        "type": "SIDS_RISK",
+        "severity": "HIGH",
+        "message": "🚨 DANGER: Prone indicators detected – classifier detected lying_on_stomach | head slightly lower than torso (-3.0 mm) | neck bent 82.7° | knees tucked (avg 38.3°) | one knee very bent (36.6°) | spine angle 30.9° indicates lying posture",
+        "recommendation": "Roll infant onto back immediately and monitor breathing"
+      }
+    ]
+  }
+}
