@@ -10,7 +10,9 @@ The models in this repo were also used in 3D experiments presented in the [CVPR 
 
 ## Download
 
-The codebase presented here was designed as a rough and ready iterative playground for the design of the model. Hence optimisations and considerations for the ease of use by others is limited. Instead this repo serves as a baseline for others wishing to expand upon the methods outlined in the report
+The codebase presented here was designed as a rough and ready iterative playground for the design of the model. Hence optimisations and considerations for the ease of use by others is limited. Instead this repo serves as a baseline for others wishing to expand upon the methods outlined in the report.
+
+> **Lưu ý:** Để giữ repo gọn nhẹ và tránh chia sẻ nhầm dữ liệu lớn, thư mục `SavedModels/` không được check-in. Bạn cần tải model thủ công theo hướng dẫn bên dưới trước khi chạy inference hoặc huấn luyện.
 
 However, if one wishes to download the relevant sources the following needs to be done:
 

@@ -27,3 +27,4 @@ yarn-error.log*
 next-env.d.ts
 /lib/generated/prisma
 lib/firebase-adminsdk.json
+3DInfantPoseEstimation-master/SavedModels/
