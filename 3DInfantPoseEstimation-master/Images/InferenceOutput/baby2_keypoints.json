@@ -1,0 +1,182 @@
+{
+  "keypoints_2d": {
+    "format": "pixel_coordinates",
+    "description": "2D keypoints in image pixel coordinates (x, y)",
+    "joints": {
+      "r ankle": {
+        "x": 39.9375,
+        "y": 184.765625
+      },
+      "r knee": {
+        "x": 91.5,
+        "y": 180.46875
+      },
+      "r hip": {
+        "x": 65.71875,
+        "y": 158.984375
+      },
+      "l hip": {
+        "x": 31.34375,
+        "y": 128.90625
+      },
+      "l knee": {
+        "x": 82.90625,
+        "y": 184.765625
+      },
+      "l ankle": {
+        "x": 39.9375,
+        "y": 184.765625
+      },
+      "pelvis": {
+        "x": 147.359375,
+        "y": 171.875
+      },
+      "thorax": {
+        "x": 44.234375,
+        "y": 133.203125
+      },
+      "upper neck": {
+        "x": 48.53125,
+        "y": 120.3125
+      },
+      "head top": {
+        "x": 44.234375,
+        "y": 94.53125
+      },
+      "r wrist": {
+        "x": 18.453125,
+        "y": 146.09375
+      },
+      "r elbow": {
+        "x": 57.125,
+        "y": 146.09375
+      },
+      "r shoulder": {
+        "x": 39.9375,
+        "y": 133.203125
+      },
+      "l shoulder": {
+        "x": 48.53125,
+        "y": 133.203125
+      },
+      "l elbow": {
+        "x": 57.125,
+        "y": 146.09375
+      },
+      "l wrist": {
+        "x": 18.453125,
+        "y": 146.09375
+      }
+    }
+  },
+  "keypoints_3d": {
+    "format": "millimeters",
+    "description": "3D keypoints in millimeters (x, y, z)",
+    "joints": {
+      "r ankle": {
+        "x": -75.1106185913086,
+        "y": 95.80357360839844,
+        "z": 39.64500427246094
+      },
+      "r knee": {
+        "x": -26.57098388671875,
+        "y": 33.13046646118164,
+        "z": -20.12749671936035
+      },
+      "r hip": {
+        "x": -12.863543510437012,
+        "y": 11.796870231628418,
+        "z": 13.11475658416748
+      },
+      "l hip": {
+        "x": 11.064486503601074,
+        "y": 16.605941772460938,
+        "z": -23.03986167907715
+      },
+      "l knee": {
+        "x": 56.16823959350586,
+        "y": 55.225738525390625,
+        "z": -122.8467788696289
+      },
+      "l ankle": {
+        "x": -5.846587181091309,
+        "y": 38.8085823059082,
+        "z": -37.42210006713867
+      },
+      "pelvis": {
+        "x": 0.14724354445934296,
+        "y": -0.030422791838645935,
+        "z": -0.02893117442727089
+      },
+      "thorax": {
+        "x": -8.240314483642578,
+        "y": -89.93365478515625,
+        "z": 7.616116523742676
+      },
+      "upper neck": {
+        "x": 16.69687271118164,
+        "y": -120.76817321777344,
+        "z": 47.109588623046875
+      },
+      "head top": {
+        "x": -42.895389556884766,
+        "y": -188.9269256591797,
+        "z": 63.95979309082031
+      },
+      "r wrist": {
+        "x": -121.50117492675781,
+        "y": -47.39877700805664,
+        "z": -61.97780990600586
+      },
+      "r elbow": {
+        "x": -75.6987075805664,
+        "y": -92.61971282958984,
+        "z": 37.133792877197266
+      },
+      "r shoulder": {
+        "x": -30.81082534790039,
+        "y": -121.44921112060547,
+        "z": 63.2232780456543
+      },
+      "l shoulder": {
+        "x": 27.360567092895508,
+        "y": -115.77034759521484,
+        "z": -16.241817474365234
+      },
+      "l elbow": {
+        "x": 17.99479866027832,
+        "y": -83.8490982055664,
+        "z": -61.51346206665039
+      },
+      "l wrist": {
+        "x": 36.0928840637207,
+        "y": -66.74440002441406,
+        "z": -60.5315055847168
+      }
+    }
+  },
+  "pose_analysis": {
+    "posture": "sitting",
+    "confidence": 0.8,
+    "danger_level": "MEDIUM",
+    "danger_message": "⚠️ WARNING: Prone indicators detected – neck bent 104.4° | knees tucked (avg 52.8°) | one knee very bent (15.5°)",
+    "recommendation": "Roll infant onto back immediately and monitor breathing",
+    "reasoning": "Spine angle 82.8° (upright) nhưng chân gập sâu (min 15.5°) → sitting | Head higher than torso by 99.0 mm | Knee angles: left 15.5°, right 90.2° | Neck angle: 104.4°",
+    "angles": {
+      "spine_angle": 82.80532836914062,
+      "knee_right": 90.21289825439453,
+      "knee_left": 15.472067832946777,
+      "neck_angle": 104.39167785644531,
+      "shoulder_right": 147.90379333496094,
+      "shoulder_left": 103.71903991699219
+    },
+    "warnings": [
+      {
+        "type": "SIDS_RISK",
+        "severity": "MEDIUM",
+        "message": "⚠️ WARNING: Prone indicators detected – neck bent 104.4° | knees tucked (avg 52.8°) | one knee very bent (15.5°)",
+        "recommendation": "Roll infant onto back immediately and monitor breathing"
+      }
+    ]
+  }
+}
