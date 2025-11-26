@@ -1,0 +1,158 @@
+1)Lắc nôi và phát nhạc
+Giải thích: 
+●user_command
+○Ý nghĩa: Lệnh trực tiếp từ người dùng qua app/web.
+●schedule_event
+○Ý nghĩa: Lệnh tự động theo lịch (ví dụ: 21:00 mỗi tối).
+●env_status
+○Ý nghĩa: Trạng thái môi trường (mô phỏng) bao gồm nhiệt độ/độ ẩm và trạng thái tóm tắt. Dùng để quyết định an toàn.
+●system_manual_trigger
+○Ý nghĩa: nút test trên UI hoặc QA bấm thử. Mục đích dùng khi kiểm thử.
+Flow:
+●Step 0: Sự kiện tới
+○Input có thể là user_command (từ UI) hoặc schedule_event.
+○Hệ thống tạo request_id mới (ví dụ req-20251125-0001) và ghi log "received".
+●Step 1: Lấy trạng thái môi trường hiện tại
+○Input có thể là user_command (từ UI) hoặc schedule_event.
+○Hệ thống tạo request_id mới (ví dụ req-20251125-0001) và ghi log "received".
+●Step 2: Lấy trạng thái môi trường hiện tại
+1.Thủ công 
+●UI hiển thị form “Kiểm tra môi trường” (fields: temp_c, humidity_pct, status chọn từ dropdown {normal,warn,critical}, optional note).
+●Người chăm sóc nhập giá trị (hoặc chọn status), bấm “Xác nhận”.
+●Rule Engine nhận input, ghi env_status với ts hiện tại, lưu audit.
+●Flow lắc nôi kiểm pre-check dựa trên env_status vừa nhập.
+2.Tự động
+●Scheduler tick → gọi MockEnvService → nhận env_status (temp, hum, ts) → Rule Engine apply thresholds/hysteresis → update state.
+●Nếu status == critical → trigger UI alert and block lệnh lắc nôi.
+●Step 3: Bảo đảm an toàn trước khi làm hành động có thể ảnh hưởng trẻ
+○Nếu env_status.status == "critical" → dừng flow, trả về UI thông báo blocked_reason = "env_critical".
+○Nếu env_status.status == "warn" → ghi notes = "env_warn" nhưng vẫn có thể tiếp tục (tuỳ chính sách).
+○Nếu normal → đi tiếp. 
+●Step 4: Kiểm tra cooldown (thời gian chờ giữa 2 lần lắc), tránh hành động lắc quá nhanh -> quấy nhiễu bé liên tục
+○Dữ liệu cần: state.last_action_ts (thời điểm lần cuối hành động thực thi xong).
+○Cách tính: elapsed = now - state.last_action_ts.
+■Nếu state.last_action_ts == null → chưa có hành động gần đây → cho tiếp.
+■Nếu elapsed < ROCK_COOLDOWN → đang còn thời gian chờ → block (trừ khi user chọn force và hệ cho phép override).
+●Step 5: Chuẩn hóa tham số lệnh, đảm bảo mọi tham số cần thiết có giá trị (duration, volume, track).
+○Nếu user không truyền duration_s, dùng DEFAULT_DURATION.
+○Nếu user không truyền volume, dùng DEFAULT_VOLUME.
+○Nếu user không truyền track, dùng DEFAULT_TRACK.
+●Step 6: Tạo actuator_command và publish (gửi lệnh) 
+○Mục đích: chuyển quyết định thành lệnh cụ thể để actuator (hoặc simulator) thực hiện; lệnh là một JSON chuẩn.
+●Step 7: Đợi actuator_ack (phản hồi từ actuator) 
+○Mục đích: Nhận biết lệnh có được actuator chấp nhận, từ chối, hay chỉ đặt vào hàng đợi (queued).
+●Step 8: Kết thúc action (auto-stop hoặc stop command)
+○Khi action kết thúc: 
+■Nếu action có duration_s = 30s, hệ có timer nội bộ; khi 30s hết
+●Publish stop (nếu actuator cần) hoặc actuator tự tắt.
+●Set state.mode = "cooldown".
+●Ghi state.last_action_ts = now_end (thời điểm kết thúc).
+●Bắt đầu timer cooldown (ROCK_COOLDOWN).
+○Nếu user bấm stop giữa chừng:
+■Publish stop → actuator ack → set state.mode = "cooldown", ghi audit note stopped_by_user.
+●Step 9: Cooldown rồi trở về idle
+○Hệ đếm thời gian: now - state.last_action_ts. Khi >= ROCK_COOLDOWN (120s) → set state.mode = "idle".
+○Trong thời gian cooldown, nếu có request mới, hệ apply bước 4 (kiểm cooldown) và thông báo cooldown_remaining.
+Kiểm thử — Manual + Tự động (bảng test cụ thể)
+Manual test cases (dành cho QA / caregiver)
+1.MT-01: User nhập temp=36.8, hum=50, status=normal → lệnh lắc được cho phép.
+2.MT-02: User nhập temp=38.5, hum=50, status=critical → lệnh bị block, UI hiển thị message.
+3.MT-03: Env stale (ts cách 2 phút) → UI yêu cầu confirm manual trước khi lắc.
+4.MT-04: User cố force trong cooldown → UI show confirm, nếu confirm, lệnh vẫn thực hiện (nếu policy cho phép) và log forced_by_user.
+Automated test cases (dùng mock service)
+1.AT-01: Mock sequence increases temp gradually from 36.8 → 38.2 → system phải chuyển normal → warn → critical theo hysteresis.
+2.AT-02: Mock suddenly jump value (spike) → test outlier filter rejects spike.
+3.AT-03: Simulate actuator offline + env critical → ensure block and queued logic correct.
+Thực thi automated: viết script/scheduler read mock JSON timeline, call Rule Engine, assert decision result.
+
+2)Theo dõi thân nhiệt trẻ
+Giải thích: 
+●temp_reading (object) — một bản đo riêng lẻ
+●env_status (object) — trạng thái tóm tắt dùng cho Rule Engine
+●state (object) — trạng thái module theo dõi
+Flow:
+●Step 1: Nhận một temp_reading 
+○Nguồn có thể là: 
+■user nhập trên UI (manual),
+■scheduled mock (simulator),
+■(sau này) sensor thật.
+●Step 2: Validity checks (kiểm tra hợp lệ)
+○Range check (giá trị hợp lý):
+■Nếu temp_c < 30.0 hoặc temp_c > 45.0 → invalid (không chấp nhận).
+■Ghi log: invalid_reason = "out_of_physical_range". Trả UI thông báo “Giá trị không hợp lệ, kiểm tra lại”.
+○Timestamp check (freshness):
+■Nếu temp_c < 30.0 hoặc temp_c > 45.0 → invalid (không chấp nhận).
+■Ghi log: invalid_reason = "out_of_physical_range". Trả UI thông báo “Giá trị không hợp lệ, kiểm tra lại”.
+○Outlier detection (so sánh với reading gần nhất):
+■Lấy last_valid_temp từ DB (nếu có).
+■Nếu abs(temp_c - last_valid_temp) > OUTLIER_DELTA (mặc định 1.5°C) → mark suspect.
+●Hành động khi suspect: (a) yêu cầu đọc lại trong 30s, hoặc (b) accept + flag suspect=true và notify caregiver.
+○Nếu pass tất cả kiểm tra → action tiếp theo (smoothing).
+●Step 3: SMOOTHING / AGGREGATION 
+○Mục đích: tránh quyết định dựa trên một mẫu nhiễu; dùng trung bình/median của N mẫu.
+●Step 4: THRESHOLD & HYSTERESIS
+○Mục đích: chuyển smoothed_temp thành status (normal/warn/critical) mà không nhảy liên tục.
+●Step 5: XỬ LÝ CASE “SUSPECT” HOẶC “STALE” (kết hợp từ Action1)
+○Nếu reading bị suspect (delta quá lớn):
+■Option A (recommended): yêu cầu đọc lại (UI pop-up “Phát hiện giá trị bất thường, vui lòng đo lại trong 30s”). Không đổi env_status cho đến khi có xác nhận.
+■Option B: chấp nhận nhưng mark env_status.note = "suspect"; gửi warning cho caregiver.
+○Nếu stale: prompt manual confirm via UI; không tự đưa ra quyết định.
+●Step 6: EMIT env_status
+●Step 7: NOTIFICATION / UI DECISION
+○Nếu status == normal: hiển thị xanh, no blocking.
+○Nếu status == warn: hiển thị banner cố vấn “Nhiệt độ hơi cao (37.4°C). Bạn muốn tiếp tục lắc nôi?” → 2 nút: Continue (thực hiện) hoặc Cancel. Nếu user chọn Continue thì tiếp sang Function 1 có thể cho phép hoặc yêu cầu confirm.
+○If status == critical: hiển thị modal block “Ngưng — Nhiệt độ 38.1°C (CRITICAL). Không lắc nôi. Gọi caregiver / kiểm tra bé.” → không cho phép lắc nôi.
+●Step 8: AUDIT / LOG
+○Mục đích: tra vết, báo cáo, dùng làm dữ liệu huấn luyện tương lai.
+●Step 9: FEED TO RULE ENGINE (Function 1)
+○Rule Engine (Function 1) đã subscribe events/env_status. Khi nó nhận:
+■Nếu status == critical → block lắc nôi.
+■Nếu status == warn → present confirmation to user.
+■Nếu status == normal → proceed with check cooldown / other rules.
+
+3)Điều chỉnh nhiệt độ, độ ẩm môi trường xung quanh trẻ
+Giải thích:
+Flow: 
+●Step 1: Trigger nhận sự kiện
+○Trigger có thể là:
+■env_status update (ví dụ temp tăng)
+■user_command (user thay setpoint hoặc request manual)
+■schedule_event (ví dụ “ban ngày 24–27°C, ban đêm 22°C”)
+●Step 2: Pre-checks an toàn
+○Lấy env_status.status.
+■Nếu status == "critical" → block mọi lệnh heating (nếu quá nóng) hoặc block cooling (nếu quá lạnh) tùy kịch bản; emit urgent notification.
+■Reasoning: nếu critical do quá nóng (temp cao), không bật heater; nếu do quá lạnh, không bật cooling. Luôn đưa ra cảnh báo caregiver.
+○Kiểm env_status.temp_c trong [TEMP_SAFE_MIN, TEMP_SAFE_MAX]. Nếu ngoài range, mark emergency and block automatic actuations; notify user.
+○Kiểm env_status.humidity_pct tương tự với [HUM_SAFE_MIN, HUM_SAFE_MAX].
+●Step 3: Quyết định chế độ (Auto vs Manual)
+○Nếu setpoints.temp_mode == "manual" → tuân thủ lệnh người dùng (nhưng vẫn tuân thủ kiểm tra an toàn).
+○Nếu temp_mode == "auto" → module tự quyết theo setpoint & env_status.
+○Nếu temp_mode == "off" → không tự bật thiết bị.
+●Step 4: Logic điều khiển nhiệt (temperature)
+Hai option:
+○Hysteresis (đơn giản, khuyên dùng ban đầu)
+■T_target = setpoints.target_temp_c
+■T_current = env_status.temp_c
+■H = HYSTERESIS_TEMP (ví dụ 0.5°C)
+■Áp dụng MIN_ON_INTERVAL và MAX_CYCLES_PER_HOUR để tránh toggle liên tục.
+○PID-lite (nâng cao, tùy chọn)
+■Compute error = T_target - T_current.
+■Output power = clamp(kp * error, -1..1). Dùng nếu cần điều khiển mượt; yêu cầu vòng lặp điều khiển chạy định kỳ.
+●Step 5: Logic điều khiển độ ẩm
+○Tương tự hysteresis:
+■HUM_TARGET = setpoints.target_humidity_pct, H_hum = HYSTERESIS_HUM
+■Nếu hum_current <= HUM_TARGET - H_hum/2 → humidify.
+■Nếu hum_current >= HUM_TARGET + H_hum/2 → dehumidify.
+■Áp dụng min on/off intervals.
+●Step 6: Giải quyết xung đột & giới hạn actuator
+○Nếu hệ đề xuất heating và cooling đồng thời → dùng rule ưu tiên (ví dụ: độ lệch lớn hơn thắng), hoặc ưu tiên yêu cầu cũ hơn.
+○Không gửi lệnh vượt MAX_CYCLES_PER_HOUR.
+○Nếu actuator trả queued hay failed → retry theo backoff; nếu fail nhiều lần → thông báo caregiver.
+●Step 7: Tạo & gửi actuator_command
+●Step 8: Nhận ack & cập nhật state
+●Step 9: Auto-stop & re-evaluate
+●Step 10: Notification & Audit
+NOTE:
+-Cá nhân hóa theo dữ liệu thực: Hệ thống không áp dụng một công thức chung cho mọi đứa trẻ mà có khả năng tinh chỉnh ngưỡng hoạt động (Active Learning) dựa trên lịch sử phản ứng và thói quen sinh học cụ thể của từng bé.
+-Phát triển thành công Prototype phần mềm thông minh: Hoàn thiện hệ thống mô phỏng trọn vẹn quy trình giám sát khép kín: Từ thu thập dữ liệu -> Phân tích AI -> Kiểm tra an toàn -> Ra quyết định điều khiển, sẵn sàng cho việc tích hợp phần cứng.
+-Hệ thống được thiết kế theo tư duy "Software-first" với kiến trúc Microservice linh hoạt, ưu tiên tính ổn định và khả năng mở rộng. 
