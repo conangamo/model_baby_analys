@@ -1,4 +1,0 @@
-MPI_INF Lifting
-
-Adam lr = e-03
-Lr Scheduler Gamma = 0.96

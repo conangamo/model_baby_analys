@@ -1,5 +1,0 @@
-Hesse 3D Lifting Network
-
-Pre trained MPI_INFLift3D
-Adam -02
-Gamma 0.9

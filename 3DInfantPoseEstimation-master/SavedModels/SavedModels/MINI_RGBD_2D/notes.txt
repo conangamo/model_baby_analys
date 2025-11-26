@@ -1,4 +1,0 @@
-Hesse 2D Poes Estimation Model
-
-Adam Lr = e-04
-

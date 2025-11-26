@@ -1,5 +1,0 @@
-Hesse Fine Tuned 3D Lifting Network
-
-Input from Hesse2D
-Adam Lr = e-04
-Lr Scheduler Gamma = 0.9
